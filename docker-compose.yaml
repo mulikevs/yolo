@@ -6,29 +6,29 @@
 
 #To launch this app without having to clone the entire repository,use the docker-compose.yaml file to run the app
 
-version: "3.8"
+version: "3.7"
 
 services:
 
   #Builds the frontend Docker image and creates the frontend microservice
-  brian-yolo-client:
-    image: brianbwire/brian-yolo-client:v1.0.0
+  mulikevs-yolo-client:
+    image: mulikevs/mulikevs-yolo-client:v1.0.0
     build: ./client
-    container_name: brian-yolo-client
+    container_name: mulikevs-yolo-client
     stdin_open: true
     tty: true
     ports:
       - "3000:3000"
     depends_on: 
-      - brian-yolo-backend
+      - mulikevs-yolo-backend
     networks:
       - app-net
 
   #Builds the backend Docker image and creates the backend microservice
-  brian-yolo-backend:
-    image: brianbwire/brian-yolo-backend:v1.0.0
+  mulikevs-yolo-backend:
+    image: mulikevs/mulikevs-yolo-backend:v1.0.0
     build: ./backend
-    container_name: brian-yolo-backend
+    container_name: mulikevs-yolo-backend
     stdin_open: true
     tty: true
     restart: always

@@ -44,8 +44,8 @@ This project demonstrates:
 > Clone the repository and navigate into the project directory.
 
 ```bash
-git clone https://github.com/your-org/yolo-ecommerce.git
-cd yolo-ecommerce
+git clone https://github.com/mulikevs/yolo.git
+cd yolo
 ```
 
 ### Using Docker Compose
@@ -70,7 +70,7 @@ vagrant up --provision
 ## 📁 Project Structure
 
 ```
-yolo-ecommerce/
+yolo/
 ├── backend/                # Express server, product API
 ├── client/                 # React app
 ├── docker-compose.yml      # Container orchestration

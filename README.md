@@ -107,7 +107,7 @@ To set it up:
 
 ## 📷 UI Preview
 
-![App Preview](image.png)
+![App Preview](preview.png)
 
 ---
 

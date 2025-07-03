@@ -111,6 +111,13 @@ To set it up:
 
 ---
 
+## Docker hub Images
+```bash
+docker pull mulikevs/mulikevs-yolo-client:v1.0.0 # frontend
+
+docker pull mulikevs/mulikevs-yolo-client:v1.0.0 # Backend
+```
+
 ## 📌 Notes
 
 - Ensure all required ports (3000, 5000) are free before starting.

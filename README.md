@@ -57,14 +57,6 @@ docker-compose up --build
 - The **backend** service will be available at: `http://localhost:5000/api/product`
 - The **frontend** service will be available at: `http://localhost:3000`
 
-### Using Vagrant (Optional)
-
-If you're using a Vagrant-managed VM:
-
-```bash
-vagrant up --provision
-```
-
 ---
 
 ## 📁 Project Structure
@@ -110,6 +102,13 @@ To set it up:
 ![App Preview](preview.png)
 
 ---
+
+## Docker hub Images
+```bash
+docker pull mulikevs/mulikevs-yolo-client:v1.0.0 # frontend
+
+docker pull mulikevs/mulikevs-yolo-client:v1.0.0 # Backend
+```
 
 ## 📌 Notes
 

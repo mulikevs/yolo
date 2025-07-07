@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const upload = multer();
-// const config = require('./_config');
+
 
 const productRoute = require('./routes/api/productRoute');
 
@@ -22,11 +22,6 @@ db.once('open', ()=>{
 db.on('error', (error)=>{
     console.log(error);
 })
-
-// Check for DB Errors
-// db.on('error', (error)=>{
-//     console.log(error);
-// })
 
 // Initializing express
 const app = express()

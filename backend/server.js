@@ -3,31 +3,25 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const upload = multer();
-const config = require('./_config');
+// const config = require('./_config');
 
 const productRoute = require('./routes/api/productRoute');
 
-// Connecting to the Database
-const environment = 'development';
-let mongoURI = config.mongoURI[environment];
-// let dbName = 'yolomy';
+let mongodb_url = 'mongodb://localhost:27017/';
+let dbName = 'yolomy';
+const MONGODB_URI = process.env.MONGODB_URI || mongodb_url + dbName
+mongoose.connect(MONGODB_URI,{useNewUrlParser: true, useUnifiedTopology: true  } )
+let db = mongoose.connection;
 
-// define a url to connect to the database
-mongoose.connect(mongoURI.replace('mongodb://', 'mongodb+srv://'), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}, (err) => {
-    if (err) {
-        console.error('MongoDB connection error:', err);
-        process.exit(1);
-    }
-});
+// Check Connection
+db.once('open', ()=>{
+    console.log('Database connected successfully')
+})
 
-// Log successful DB connection
-mongoose.connection.once('open', () => {
-    console.log('Database connected successfully');
-});
-
+// Check for DB Errors
+db.on('error', (error)=>{
+    console.log(error);
+})
 
 // Check for DB Errors
 // db.on('error', (error)=>{

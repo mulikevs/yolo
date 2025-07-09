@@ -1,44 +1,50 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend-deployment
-  labels:
-    app: backend
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: backend
-  template:
-    metadata:
-      labels:
-        app: backend
-    spec:
-      containers:
-        - name: backend
-          image: mulikevs/mulikevs-yolo-backend:v1.0.0
-          command: ["npm", "start"] 
-          ports:
-            - containerPort: 5000
-          resources:
-            limits:
-              memory: "256Mi"
-              cpu: "500m"
-            requests:
-              memory: "128Mi"
-              cpu: "250m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-spec:
-  type: LoadBalancer
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
-      nodePort: 30100
-  
+# Docker Compose file for deploying the backend and MongoDB microservices
+version: "3.7"
+
+services:
+  # Configures the backend service
+  mulikevs-yolo-backend:
+    # Specifies the Docker image to use
+    image: mulikevs/mulikevs-yolo-backend:v1.0.0
+    build: ./backend
+    container_name: mulikevs-yolo-backend
+    stdin_open: true
+    tty: true
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - app-ip-mongo
+    # Connects to the shared network
+    networks:
+      - app-net
+
+  # Configures the MongoDB database service
+  app-ip-mongo:
+    image: mongo
+    container_name: app-mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - app-net
+    # Persists MongoDB data using a volume
+    volumes:
+      - type: volume
+        source: app-mongo-data
+        target: /data/db
+
+# Configures the network for communication between services
+networks:
+  app-net:
+    name: app-net
+    driver: bridge
+    attachable: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          ip_range: 172.20.0.0/16
+
+# Defines a volume for persistent MongoDB data
+volumes:
+  app-mongo-data:
+    driver: local

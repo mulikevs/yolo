@@ -1,0 +1,23 @@
+# Docker Compose file for deploying the frontend microservice
+version: "3.7"
+
+services:
+  # Configures the frontend service
+  mulikevs-yolo-client:
+    image: mulikevs/mulikevs-yolo-client:v1.0.0
+    build: ./client
+    container_name: mulikevs-yolo-client
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    # Ensures the frontend can communicate with the backend
+    networks:
+      - app-net
+
+# Configures the network for communication with the backend
+networks:
+  app-net:
+    name: app-net
+    # Allows external services to attach to this network
+    external: true

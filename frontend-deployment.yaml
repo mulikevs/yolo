@@ -1,23 +1,45 @@
-# Docker Compose file for deploying the frontend microservice
-version: "3.7"
-
-services:
-  # Configures the frontend service
-  mulikevs-yolo-client:
-    image: mulikevs/mulikevs-yolo-client:v1.0.0
-    build: ./client
-    container_name: mulikevs-yolo-client
-    stdin_open: true
-    tty: true
-    ports:
-      - "3000:3000"
-    # Ensures the frontend can communicate with the backend
-    networks:
-      - app-net
-
-# Configures the network for communication with the backend
-networks:
-  app-net:
-    name: app-net
-    # Allows external services to attach to this network
-    external: true
+# Kubernetes manifest for deploying the frontend microservice
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mulikevs-yolo-client
+  labels:
+    app: mulikevs-yolo-client
+spec:
+  # Deployment Configuration
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mulikevs-yolo-client
+  template:
+    metadata:
+      labels:
+        app: mulikevs-yolo-client
+    spec:
+      # Container Configuration
+      containers:
+      - name: mulikevs-yolo-client
+        image: mulikevs/mulikevs-yolo-client:v1.0.0
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+---
+# Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: mulikevs-yolo-client
+spec:
+  selector:
+    app: mulikevs-yolo-client
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+  type: ClusterIP

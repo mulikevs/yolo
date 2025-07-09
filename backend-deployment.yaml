@@ -1,50 +1,111 @@
-# Docker Compose file for deploying the backend and MongoDB microservices
-version: "3.7"
-
-services:
-  # Configures the backend service
-  mulikevs-yolo-backend:
-    # Specifies the Docker image to use
-    image: mulikevs/mulikevs-yolo-backend:v1.0.0
-    build: ./backend
-    container_name: mulikevs-yolo-backend
-    stdin_open: true
-    tty: true
-    restart: always
-    ports:
-      - "5000:5000"
-    depends_on:
-      - app-ip-mongo
-    # Connects to the shared network
-    networks:
-      - app-net
-
-  # Configures the MongoDB database service
-  app-ip-mongo:
-    image: mongo
-    container_name: app-mongo
-    ports:
-      - "27017:27017"
-    networks:
-      - app-net
-    # Persists MongoDB data using a volume
-    volumes:
-      - type: volume
-        source: app-mongo-data
-        target: /data/db
-
-# Configures the network for communication between services
-networks:
-  app-net:
-    name: app-net
-    driver: bridge
-    attachable: true
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          ip_range: 172.20.0.0/16
-
-# Defines a volume for persistent MongoDB data
-volumes:
-  app-mongo-data:
-    driver: local
+# Kubernetes manifest for deploying the backend and MongoDB microservices
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mulikevs-yolo-backend
+  labels:
+    app: mulikevs-yolo-backend
+spec:
+  # Deployment Configuration
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mulikevs-yolo-backend
+  template:
+    metadata:
+      labels:
+        app: mulikevs-yolo-backend
+    spec:
+      # Container Configuration
+      containers:
+      - name: mulikevs-yolo-backend
+        image: mulikevs/mulikevs-yolo-backend:v1.0.0
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+---
+# MongoDB Deployment Configuration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-ip-mongo
+  labels:
+    app: app-ip-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-ip-mongo
+  template:
+    metadata:
+      labels:
+        app: app-ip-mongo
+    spec:
+      # Container Configuration
+      containers:
+      - name: app-ip-mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        # Volume Mount for Persistent Storage
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      # Volume Configuration
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongo-data-pvc
+---
+# MongoDB Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-data-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Backend Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: mulikevs-yolo-backend
+spec:
+  selector:
+    app: mulikevs-yolo-backend
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+# MongoDB Service Configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-ip-mongo
+spec:
+  selector:
+    app: app-ip-mongo
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  type: ClusterIP

@@ -3,7 +3,7 @@
 
 This is a full-stack e-commerce platform that functions both as a customer-facing storefront and an admin dashboard for managing products. The application is built using **React** for the frontend, **Node.js/Express** for the backend, and **MongoDB** for the database.
 
-The project is containerized using Docker and follows a microservices architecture, making it easy to deploy and scale. It includes a `docker-compose.yml` file to manage services and a `Jenkinsfile` to support CI/CD pipelines.
+The project is containerized using Docker and follows a microservices architecture, making it easy to deploy and scale. It includes a `docker-compose.yml` file to manage services.
 
 ---
 
@@ -14,7 +14,6 @@ This project demonstrates:
 - Microservices deployment using Docker containers
 - Backend REST API for managing products
 - Frontend React dashboard and product storefront
-- CI/CD automation via Jenkins
 - MongoDB as the primary data store
 
 ---
@@ -26,7 +25,7 @@ This project demonstrates:
 | Frontend   | React (Port: `3000`)             |
 | Backend    | Node.js + Express (Port: `5000`) |
 | Database   | MongoDB                          |
-| DevOps     | Docker, Docker Compose, Jenkins  |
+| DevOps     | Docker & Docker Compose  |
 
 ---
 

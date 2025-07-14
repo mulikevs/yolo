@@ -4,7 +4,8 @@ FROM node:14-alpine AS build
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci --production && npm cache clean --force
+
+RUN npm install --production && npm cache clean --force
 
 COPY . .
 

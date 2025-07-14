@@ -32,10 +32,8 @@ This project demonstrates:
 
 ## 📦 Requirements
 
-- [Docker Engine](https://docs.docker.com/engine/install/)
+- [Docker](https://docs.docker.com/engine/install/)
 - [Docker Compose](https://docs.docker.com/compose/)
-- (Optional) [Vagrant](https://www.vagrantup.com/) if using a local VM
-- Jenkins for CI/CD (optional for local development)
 
 ---
 
@@ -66,7 +64,6 @@ yolo/
 ├── backend/                # Express server, product API
 ├── client/                 # React app
 ├── docker-compose.yml      # Container orchestration
-├── Jenkinsfile             # CI/CD pipeline definition
 └── README.md
 ```
 
@@ -85,17 +82,6 @@ yolo/
 
 ---
 
-## 🔧 CI/CD with Jenkins
-
-The project includes a `Jenkinsfile` for setting up a CI/CD pipeline to build, test, and deploy the application.
-
-To set it up:
-
-1. Create a new pipeline project in Jenkins.
-2. Connect it to the repository.
-3. Jenkins will automatically detect the `Jenkinsfile` and run the stages defined within it.
-
----
 
 ## 📷 UI Preview
 

@@ -4,14 +4,22 @@
   become: true
   vars_files:
     - vars.yml
- 
+  pre_tasks:
+    # Create project directory
+    - name: Create project directory
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
 
   roles:
+    # Configure system and install base dependencies
+    - common_config
     # Install Docker and Docker Compose
-    - docker_install
-    # Configure and deploy frontend service
-    - frontend_deploy
-    # Configure and deploy backend service
-    - backend_deploy
-    # Configure MongoDB service
-    - mongodb_deploy
+    - docker_setup
+    # Install and configure MongoDB
+    - mongodb_setup
+    # Deploy the application
+    - app_deployment

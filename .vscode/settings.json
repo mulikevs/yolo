@@ -2,5 +2,6 @@
     "git.ignoreLimitWarning": true,
     "yaml.schemas": {
         "kubernetes://schema/v1%40service": "file:///home/brayo/Desktop/Assignment2/yolo/frontend-deployment.yaml"
-    }
+    },
+    "ansible.python.interpreterPath": "/bin/python3"
 }

@@ -1,0 +1,39 @@
+---
+# Tasks to install and configure Docker and Docker Compose
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+    state: present
+
+- name: Install Docker Engine
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+
+- name: Start Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+# - name: Install Docker Compose
+#   pip:
+#     name: docker-compose
+#     state: present
+- name: Install Docker Compose V2
+  get_url:
+    url: https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Ensure vagrant user is in docker group
+  user:
+    name: vagrant
+    groups: docker
+    append: yes

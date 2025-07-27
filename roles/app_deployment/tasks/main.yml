@@ -1,3 +1,4 @@
+---
 # Tasks to deploy the application
 - name: Check if repository exists
   stat:
@@ -53,6 +54,6 @@
     mode: '0755'
 
 - name: Run Docker Compose
-  command: docker-compose -f "{{ docker_compose_file }}" up -d
+  command: docker compose -f /home/vagrant/yolo/docker-compose.yaml up build
   tags:
     - deploy

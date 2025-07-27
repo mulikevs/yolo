@@ -1,13 +1,8 @@
-
-#It's also a requirement to have Docker and the docker-compose plugin installed in your environment
-
-#To launch this app without having to clone the entire repository,use the docker-compose.yaml file to run the app
-
+# Docker Compose file to run the e-commerce application
 version: "3.7"
 
 services:
-
-  #Builds the frontend Docker image and creates the frontend microservice
+  # Frontend microservice
   mulikevs-yolo-client:
     image: mulikevs/mulikevs-yolo-client:v1.0.0
     build: ./client
@@ -15,13 +10,13 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - "3000:3000"
-    depends_on: 
+      - "3000:3000"  # frontend port
+    depends_on:
       - mulikevs-yolo-backend
     networks:
       - app-net
 
-  #Builds the backend Docker image and creates the backend microservice
+  # Backend microservice
   mulikevs-yolo-backend:
     image: mulikevs/mulikevs-yolo-backend:v1.0.0
     build: ./backend
@@ -30,18 +25,18 @@ services:
     tty: true
     restart: always
     ports:
-      - "5000:5000"
-    depends_on: 
+      - "5000:5000"  # backend port
+    depends_on:
       - app-ip-mongo
     networks:
       - app-net
 
-  #Creates the database microservice
+  # MongoDB microservice
   app-ip-mongo:
-    image: mongo
+    image: mongo:7.0.12  # mongodb image
     container_name: app-mongo
     ports:
-      - "27017:27017"
+      - "27017:27017"  # mongodb port
     networks:
       - app-net
     volumes:
@@ -49,7 +44,7 @@ services:
         source: app-mongo-data
         target: /data/db
 
-#Creates the network infrastructure necessary for the containers to communicate with each other
+# Network configuration
 networks:
   app-net:
     name: app-net
@@ -57,10 +52,10 @@ networks:
     attachable: true
     ipam:
       config:
-        - subnet: 172.20.0.0/16 
-          ip_range: 172.20.0.0/16 
+        - subnet: 172.20.0.0/16
+          ip_range: 172.20.0.0/16
 
-#Creates a Docker volume that persists all the data stored in the database
+# Volume configuration
 volumes:
   app-mongo-data:
     driver: local

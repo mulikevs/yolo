@@ -1,10 +1,16 @@
-- name: Provision Vagrant VM for e-commerce application
+# Playbook to provision Vagrant VM for e-commerce application
+- name: Provision e-commerce application
   hosts: all
   become: true
   vars_files:
     - vars.yml
-
-  tasks:
-    - name: Debug pathtoyolo
-      debug:
-        msg: "pathtoyolo is {{ pathtoyolo }}"
+ 
+  roles:
+    # Install Docker and Docker Compose
+    - docker
+    # Configure and deploy frontend service
+    - frontend
+    # Configure and deploy backend service
+    - backend
+    # Configure MongoDB service
+    - mongodb

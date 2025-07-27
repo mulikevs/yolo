@@ -1,0 +1,15 @@
+---
+# Tasks to configure and deploy backend service
+- name: Ensure backend image is used in Docker Compose
+  lineinfile:
+    path: "{{ docker_compose_file }}"
+    regexp: '^(\s*image:\s*mulikevs/mulikevs-yolo-backend:).*'
+    line: "    image: {{ backend_image }}"
+    backrefs: yes
+
+- name: Verify backend port configuration
+  lineinfile:
+    path: "{{ docker_compose_file }}"
+    regexp: '^(\s*-\s*")\d+:(\d+)("\s*#\s*backend\s*port.*)'
+    line: '    - "{{ backend_port }}:\2"\3'
+    backrefs: yes

@@ -1,0 +1,15 @@
+---
+# Tasks to configure and deploy frontend service
+- name: Ensure frontend image is used in Docker Compose
+  lineinfile:
+    path: "{{ docker_compose_file }}"
+    regexp: '^(\s*image:\s*mulikevs/mulikevs-yolo-client:).*'
+    line: "    image: {{ frontend_image }}"
+    backrefs: yes
+
+- name: Verify frontend port configuration
+  lineinfile:
+    path: "{{ docker_compose_file }}"
+    regexp: '^(\s*-\s*")\d+:(\d+)("\s*#\s*frontend\s*port.*)'
+    line: '    - "{{ frontend_port }}:\2"\3'
+    backrefs: yes

@@ -5,12 +5,13 @@
   vars_files:
     - vars.yml
  
+
   roles:
     # Install Docker and Docker Compose
-    - docker
+    - docker_install
     # Configure and deploy frontend service
-    - frontend
+    - frontend_deploy
     # Configure and deploy backend service
-    - backend
+    - backend_deploy
     # Configure MongoDB service
-    - mongodb
+    - mongodb_deploy

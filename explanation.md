@@ -1,171 +1,145 @@
-# Explanation of YOLO E-Commerce Application Setup
+# Explanation of YOLO E-Commerce Application - Stage 2
 
-This document explains the provisioning process for the YOLO E-Commerce Application, a full-stack platform using React, Node.js/Express, and MongoDB, deployed on an Ubuntu 22.04 virtual machine (VM) via Vagrant and Ansible. It details how the `Vagrantfile` and `playbook.yaml` work together, the provisioning workflow, and customization options for different environments.
+This document explains the hybrid automation stack for Stage 2 of the YOLO E-Commerce Application, using **Terraform** for infrastructure provisioning and **Ansible** for configuration management. It details the integration, orchestration flow, and customization options for deploying the application on an Ubuntu 22.04 VM.
 
-## 📖 Overview
+## 📖 Purpose of Using Terraform and Ansible
 
-The project uses:
-- **Vagrant**: To create and manage an Ubuntu 22.04 VM (`generic/ubuntu2204`).
-- **Ansible**: To provision the VM with Docker, Docker Compose, and the application.
-- **Docker Compose**: To deploy microservices (frontend, backend, MongoDB) in containers.
-- **Git**: To clone the `master` branch of the repository (`https://github.com/mulikevs/yolo.git`).
+- **Terraform**:
+  - Provides Infrastructure as Code (IaC) to provision and manage infrastructure (VMs, networks) declaratively.
+  - Ensures consistent, repeatable environments.
+  - Supports multiple providers (e.g., libvirt, AWS, GCP) for flexibility.
+- **Ansible**:
+  - Handles configuration management, installing software, and deploying applications.
+  - Idempotent tasks ensure safe, repeatable configurations.
+  - Complements Terraform by configuring provisioned resources.
+- **Why Both?**:
+  - Terraform excels at creating infrastructure but lacks fine-grained configuration capabilities.
+  - Ansible excels at configuring systems but doesn’t manage infrastructure lifecycle.
+  - Together, they provide end-to-end automation: Terraform builds the VM, Ansible configures and deploys the app.
 
-The setup automates:
-- VM creation and networking configuration.
-- Installation of system dependencies, Docker, and Docker Compose.
-- Cloning the application repository and deploying services.
+## 🔄 Orchestration Flow
 
-## 🛠️ Vagrantfile Breakdown
+1. **Initiate with `site.yml`**:
+   - Run `ansible-playbook playbooks/site.yml` from `Stage_two/ansible`.
+   - The playbook has two plays:
+     - **Local Play**: Runs Terraform on the host machine.
+     - **Remote Play**: Configures the VM via SSH.
 
-The `Vagrantfile` defines the VM configuration and triggers Ansible provisioning.
+2. **Terraform Execution**:
+   - **Initialize**: `terraform init` sets up the `libvirt` provider.
+   - **Apply**: `terraform apply` creates:
+     - An Ubuntu 22.04 VM (`yolo_vm`) with 2GB RAM, 2 CPUs.
+     - A NAT network (`yolo_net`, `192.168.122.0/24`).
+     - A disk image (`yolo_ubuntu.qcow2`) based on the Ubuntu QCOW2 file.
+   - Outputs the VM IP address.
+   - Cloud-init configures SSH access and basic setup.
 
-### Key Components
-- **Box**: `config.vm.box = "generic/ubuntu2204"`
-  - Uses the `generic/ubuntu2204` Vagrant box, providing a clean Ubuntu 22.04 environment.
-- **Network**:
-  - Port forwarding:
-    ```ruby
-    config.vm.network "forwarded_port", guest: 3000, host: 3000
-    config.vm.network "forwarded_port", guest: 5000, host: 5000
-    config.vm.network "forwarded_port", guest: 27017, host: 27017
-    ```
-    - Maps VM ports (3000, 5000, 27017) to host ports, enabling access to the frontend, backend, and MongoDB.
-- **Ansible Provisioner**:
-  - ```ruby
-    config.vm.provision :ansible do |ansible|
-      ansible.playbook = "playbook.yaml"
-      ansible.verbose = "v"
-    end
-    ```
-    - Executes `playbook.yaml` to provision the VM.
-    - Enables verbose output (`-v`) for debugging.
+3. **Dynamic Inventory Generation**:
+   - `site.yml` extracts the VM IP from Terraform output.
+   - Generates `ansible/inventory/hosts` using a Jinja2 template:
+     ```ini
+     [all]
+     yolo_vm ansible_host=<vm_ip> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+     ```
 
-### Workflow
-1. Vagrant downloads the `generic/ubuntu2204` box (if not cached).
-2. Creates a VirtualBox VM with forwarded ports.
-3. Runs Ansible to execute `playbook.yaml` on the VM.
-
-## 📜 playbook.yaml Breakdown
-
-The `playbook.yaml` orchestrates the provisioning process using Ansible roles.
-
-### Structure
-- **Hosts**: `hosts: all`
-  - Targets all hosts in the inventory (`hosts/hosts`).
-- **Privilege Escalation**: `become: true`
-  - Runs tasks with `sudo` privileges for system modifications.
-- **Variables**: `vars_files: - vars.yml`
-  - Loads variables from `vars.yml` (e.g., `project_dir`, `repo_url`).
-- **Pre-tasks**:
-  - Creates the project directory (`/home/vagrant/yolo`):
-    ```yaml
-    - name: Create project directory
-      file:
-        path: "{{ project_dir }}"
-        state: directory
-        owner: vagrant
-        group: vagrant
-        mode: '0755'
-    ```
-- **Roles**:
-  - Applies four roles in order:
-    - `common_config`: Installs system dependencies (e.g., `curl`, `python3-pip`).
-    - `docker_setup`: Installs Docker and Docker Compose V2.
-    - `mongodb_setup`: Installs a native MongoDB instance (optional, may conflict with Dockerized MongoDB).
-    - `app_deployment`: Clones the repository, copies `docker-compose.yaml`, and starts the application.
-
-### Key Roles
-1. **common_config**:
-   - Updates the system (`apt update && apt upgrade`).
-   - Installs dependencies like `apt-transport-https`, `python3-pip`, and `pymongo`.
-2. **docker_setup**:
-   - Installs Docker from the official repository.
-   - Downloads Docker Compose V2 binary (`v2.24.0`).
-   - Adds the `vagrant` user to the `docker` group.
-3. **mongodb_setup**:
-   - Installs MongoDB (version 7.0) natively.
-   - Configures remote connections and authentication.
-   - **Note**: May conflict with the Dockerized MongoDB in `docker-compose.yaml`.
-4. **app_deployment**:
-   - Clones the `master` branch of `https://github.com/mulikevs/yolo.git` to `/home/vagrant/yolo`.
-   - Copies `docker-compose.yaml` to the project directory.
-   - Creates `backend` and `client` directories.
-   - Runs `docker-compose up -d` to start the services.
-
-## 🔄 Provisioning Process
-
-1. **Vagrant Initialization**:
-   - `vagrant up` creates the VM and configures networking (port forwarding).
-   - Vagrant mounts the project directory as a synced folder and triggers Ansible.
-
-2. **Ansible Execution**:
-   - Ansible reads `ansible.cfg` and the inventory (`hosts/hosts`).
-   - Executes `playbook.yaml`:
-     - **Pre-tasks**: Creates `/home/vagrant/yolo`.
-     - **common_config**: Sets up system dependencies.
-     - **docker_setup**: Installs Docker and Docker Compose.
-     - **mongodb_setup**: Configures native MongoDB (optional).
-     - **app_deployment**:
-       - Checks if `/home/vagrant/yolo/.git` exists.
-       - Removes the directory if it’s not a Git repository.
-       - Clones or updates the `master` branch.
+4. **Ansible Configuration**:
+   - Waits for the VM to be SSH-accessible (port 22, timeout 300s).
+   - Applies roles:
+     - `common_config`: Installs system dependencies (`curl`, `python3-pip`).
+     - `docker_setup`: Installs Docker and Docker Compose V2.
+     - `app_deployment`:
+       - Clones the `master` branch of `https://github.com/mulikevs/yolo.git`.
        - Copies `docker-compose.yaml`.
-       - Runs `docker-compose up -d` to start the frontend, backend, and MongoDB containers.
+       - Starts containers (`mulikevs-yolo-client`, `mulikevs-yolo-backend`, `app-mongo`).
 
-3. **Application Deployment**:
-   - Docker Compose starts three services:
-     - `mulikevs-yolo-client`: React frontend on port 3000.
-     - `mulikevs-yolo-backend`: Node.js/Express backend on port 5000.
-     - `app-ip-mongo`: MongoDB on port 27017.
-   - Containers communicate over the `app-net` bridge network.
+5. **Application Deployment**:
+   - Docker Compose starts services on ports 3000, 5000, and 27017, accessible via the VM’s IP.
 
-## 🛠️ Customization Tips
+## 🛠️ Customization Options
 
-- **Change Vagrant Box**:
-  - Replace `generic/ubuntu2204` with another box (e.g., `ubuntu/focal64`):
-    ```ruby
-    config.vm.box = "ubuntu/focal64"
+- **Switch to Cloud Providers**:
+  - Replace the `libvirt` provider with AWS:
+    ```hcl
+    provider "aws" {
+      region = var.aws_region
+    }
+
+    resource "aws_instance" "yolo_vm" {
+      ami           = var.ami_id
+      instance_type = var.instance_type
+      key_name      = var.key_name
+      vpc_security_group_ids = [aws_security_group.yolo_sg.id]
+    }
     ```
-  - Update Ansible tasks for compatibility with the new distribution.
+    - Update `variables.tf` with AWS-specific variables.
+    - Modify `site.yml` to use AWS instance public IP.
 
-- **Adjust VM Resources**:
-  - Modify CPU and memory in the `Vagrantfile`:
-    ```ruby
-    config.vm.provider "virtualbox" do |vb|
-      vb.memory = "2048"
-      vb.cpus = 2
-    end
-    ```
-
-- **Use Dockerized MongoDB Only**:
-  - Remove the `mongodb_setup` role from `playbook.yaml` to avoid conflicts:
+- **Add Additional Services**:
+  - Extend `docker-compose.yaml` for new services (e.g., Redis):
     ```yaml
-    roles:
-      - common_config
-      - docker_setup
-      - app_deployment
+    redis:
+      image: redis:7.0
+      ports:
+        - "6379:6379"
+      networks:
+        - app-net
     ```
-  - Ensure the backend connects to `mongodb://app-ip-mongo:27017/yolomy`.
+    - Create a new Ansible role:
+      ```bash
+      ansible-galaxy init ansible/roles/redis_setup
+      ```
 
-- **Environment Variables**:
-  - Add environment variables to `docker-compose.yaml`:
-    ```yaml
-    mulikevs-yolo-backend:
-      environment:
-        - MONGO_URI=mongodb://app-ip-mongo:27017/yolomy
-    ```
-  - Update `vars.yml` with custom variables:
-    ```yaml
-    mongo_uri: mongodb://app-ip-mongo:27017/yolomy
+- **Scale Resources**:
+  - Adjust VM specs in `variables.tf`:
+    ```hcl
+    variable "vm_memory" {
+      default = 4096
+    }
+    variable "vm_vcpu" {
+      default = 4
+    }
     ```
 
-- **Production Deployment**:
-  - Use a cloud provider (e.g., AWS EC2) instead of Vagrant.
-  - Replace the Vagrant box with an Ansible inventory targeting the cloud instance.
-  - Add security configurations (e.g., firewall rules, SSL) in the `common_config` role.
+- **Private Repository**:
+  - Add SSH key to Terraform’s cloud-init:
+    ```hcl
+    user_data = templatefile("${path.module}/cloud_init.cfg", {
+      ssh_public_key = file(var.ssh_public_key_path)
+      ssh_private_key = file(var.ssh_private_key_path)
+    })
+    ```
+    - Update `app_deployment`:
+      ```yaml
+      key_file: /home/ubuntu/.ssh/id_rsa
+      ```
+
+- **State Management**:
+  - Use remote state for production:
+    ```hcl
+    terraform {
+      backend "s3" {
+        bucket = "yolo-terraform-state"
+        key    = "state/terraform.tfstate"
+        region = "us-east-1"
+      }
+    }
+    ```
+
+- **Security Hardening**:
+  - Add firewall rules in `common_config`:
+    ```yaml
+    - name: Configure UFW
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - 3000
+        - 5000
+        - 27017
+    ```
 
 ## 📌 Notes
 
-- The `docker-compose.yaml` uses `mongo:7.0.12` for SemVer compliance, avoiding the ambiguous `mongo:lamaster`.
-- The `master` branch must contain valid `Dockerfile`s in `client` and `backend` directories for the build to succeed.
-- Ansible roles are idempotent, ensuring safe re-provisioning with `vagrant provision`.
+- **MongoDB**: Uses Dockerized `mongo:7.0.12` to avoid conflicts with native installations.
+- **Idempotency**: Ansible roles are idempotent; Terraform applies changes incrementally.
+- **Port Forwarding**: Limited by `libvirt` NAT; for cloud providers, use security groups.

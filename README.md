@@ -1,170 +1,183 @@
-# 🛍️ YOLO E-Commerce Application
+# 🛍️ YOLO E-Commerce Application - Stage 2
 
-The YOLO E-Commerce Application is a full-stack platform featuring a customer-facing storefront and an admin dashboard for managing products. Built with **React** for the frontend, **Node.js/Express** for the backend, and **MongoDB** for the database, it uses a microservices architecture deployed via Docker containers. This project leverages **Vagrant** and **Ansible** for automated provisioning and orchestration on an Ubuntu 22.04 virtual machine.
+The YOLO E-Commerce Application is a full-stack platform with a customer-facing storefront and admin dashboard, built using **React** (frontend), **Node.js/Express** (backend), and **MongoDB** (database). Stage 2 automates infrastructure provisioning and configuration using **Terraform** and **Ansible**, deploying the application on an Ubuntu 22.04 virtual machine (VM) with Docker containers.
 
 ## 🚀 Overview
 
-This project demonstrates:
-- A microservices-based e-commerce platform with separate frontend, backend, and database services.
-- Automated provisioning using Vagrant and Ansible.
-- Containerized deployment with Docker and Docker Compose.
-- REST API for product management and a responsive React-based UI.
+This setup demonstrates:
+- Infrastructure as Code (IaC) using Terraform to provision a VM and networking.
+- Configuration management with Ansible to install dependencies and deploy the application.
+- Microservices deployment via Docker Compose.
+- Integrated orchestration with a single Ansible playbook (`site.yml`).
 
 | Layer      | Technology                       | Port  |
 |------------|----------------------------------|-------|
 | Frontend   | React                            | 3000  |
 | Backend    | Node.js + Express                | 5000  |
 | Database   | MongoDB (Dockerized)             | 27017 |
-| DevOps     | Vagrant, Ansible, Docker Compose | -     |
+| DevOps     | Terraform, Ansible, Docker       | -     |
 
 ## 📦 Prerequisites
 
-To run this project, ensure you have the following installed:
-- [Vagrant](https://www.vagrantup.com/downloads) 
-- [VirtualBox](https://www.virtualbox.org/wiki/Downloads) 
-- [Ansible](https://docs.ansible.com/ansible/lamaster/installation_guide/intro_installation.html) 
-- Git (for cloning the repository)
-
-Ensure your system has at least:
-- Internet access for downloading the Vagrant box and Docker images
+- **Tools**:
+  - [Terraform](https://www.terraform.io/downloads.html) (1.5.0 or later)
+  - [Ansible](https://docs.ansible.com/ansible/lamaster/installation_guide/intro_installation.html) (2.12 or later)
+  - [Vagrant](https://www.vagrantup.com/downloads) (optional, for libvirt provider setup)
+  - [libvirt](https://libvirt.org/) with KVM/QEMU (for VM provisioning)
+  - Git
+- **System Requirements**:
+  - 4GB RAM, 10GB disk space
+  - Ubuntu host (or compatible Linux with libvirt)
+  - SSH key pair (`~/.ssh/id_rsa`, `~/.ssh/id_rsa.pub`)
+- **Ubuntu Image**:
+  - Download Ubuntu 22.04 QCOW2 image and place it at `/var/lib/libvirt/images/ubuntu-22.04-minimal.qcow2`:
+    ```bash
+    sudo wget -O /var/lib/libvirt/images/ubuntu-22.04-minimal.qcow2 https://cloud-images.ubuntu.com/minimal/releases/jammy/release/ubuntu-22.04-minimal-cloudimg-amd64.img
+    ```
 
 ## 🛠️ Installation
 
-1. **Clone the Repository**:
+1. **Clone the Repository and Switch to Stage_two Branch**:
    ```bash
    git clone https://github.com/mulikevs/yolo.git
    cd yolo
+   git checkout Stage_two
+   cd Stage_two
    ```
 
-2. **Install Dependencies**:
-   - Ensure Vagrant and VirtualBox.
-   - Ansible is executed by Vagrant, so no additional setup is needed on the host machine.
-
-3. **Verify Project Structure**:
-   Ensure the following files and directories exist:
+2. **Verify Directory Structure**:
    ```
-   yolo/
-   ├── backend/         
-   ├── client/               
-   ├── explanation.md
-   ├── Vagrantfile
-   ├── ansible.cfg
-   ├── playbook.yaml
+   Stage_two/
+   ├── terraform/
+   │   ├── main.tf
+   │   ├── variables.tf
+   │   ├── cloud_init.cfg
+   ├── ansible/
+   │   ├── playbooks/
+   │   │   ├── site.yml
+   │   │   ├── inventory.j2
+   │   ├── roles/
+   │   │   ├── common_config/
+   │   │   ├── docker_setup/
+   │   │   ├── app_deployment/
+   │   ├── inventory/
+   │   │   ├── hosts
+   │   ├── ansible.cfg
    ├── vars.yml
    ├── docker-compose.yaml
-   ├── hosts/
-   │   └── hosts
-   ├── roles/
-   │   ├── common_config/
-   │   ├── docker_setup/
-   │   ├── mongodb_setup/
-   │   ├── app_deployment/
-   └── README.md
+   ├── README.md
+   └── explanation.md
    ```
 
-## 🚀 Starting the Environment
+3. **Install Dependencies**:
+   - Ensure Terraform, Ansible, and libvirt are installed:
+     ```bash
+     sudo apt update
+     sudo apt install -y terraform qemu-kvm libvirt-daemon-system libvirt-clients
+     ```
+   - Verify libvirt service:
+     ```bash
+     sudo systemctl enable --now libvirtd
+     ```
 
-1. **Launch the Vagrant VM**:
-   Run the following command to start the VM and provision it with Ansible:
+## 🚀 Deploying the Application
+
+1. **Run the Full Stack**:
+   Execute the `site.yml` playbook to provision infrastructure and configure the VM:
    ```bash
-   vagrant up
+   cd Stage_two/ansible
+   ansible-playbook playbooks/site.yml
    ```
-   - This creates an Ubuntu 22.04 VM, installs Docker, clones the `master` branch of the repository, and deploys the application using Docker Compose.
-   - The process may take 5-10 minutes, depending on your internet speed and system resources.
+   - **What Happens**:
+     - Terraform provisions an Ubuntu 22.04 VM with port forwarding (3000, 5000, 27017).
+     - Ansible installs Docker, clones the `master` branch, and deploys the application via Docker Compose.
+     - The process takes 5-10 minutes.
 
 2. **Access the Application**:
-   Once provisioning is complete, access the services inside the VM:
-   - **Frontend**: `http://localhost:3000` (React storefront and admin dashboard)
-   - **Backend API**: `http://localhost:5000/api/product` (REST API for product management)
-   - **MongoDB**: `localhost:27017` (optional, for database access)
+   - **Frontend**: `http://<vm_ip>:3000` (React storefront/admin dashboard)
+   - **Backend API**: `http://<vm_ip>:5000/api/product` (REST API)
+   - **MongoDB**: `<vm_ip>:27017` (optional, for database access)
+   - Find `<vm_ip>` in `terraform/terraform.tfstate` or `ansible/inventory/hosts`.
 
-3. **Verify Running Containers**:
-   SSH into the VM to check the Docker containers:
+3. **Verify Containers**:
+   SSH into the VM to check Docker containers:
    ```bash
-   vagrant ssh
+   ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
    docker ps
    ```
-   You should see three containers: `mulikevs-yolo-client`, `mulikevs-yolo-backend`, and `app-mongo`.
+   Expected containers: `mulikevs-yolo-client`, `mulikevs-yolo-backend`, `app-mongo`.
 
 ## 🛑 Stopping the Environment
 
-1. **Stop the Application**:
-   SSH into the VM and stop the Docker Compose services:
+1. **Stop Docker Compose**:
    ```bash
-   vagrant ssh
-   cd /home/vagrant/yolo
+   ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
+   cd /home/ubuntu/yolo
    docker-compose -f docker-compose.yaml down
    ```
 
-2. **Halt the VM**:
-   Stop the Vagrant VM:
+2. **Destroy Infrastructure**:
    ```bash
-   vagrant halt
+   cd Stage_two/terraform
+   terraform destroy -auto-approve
    ```
 
-3. **Destroy the VM** (optional):
-   To remove the VM and free up resources:
-   ```bash
-   vagrant destroy
-   ```
+## 🔧 Terraform and Ansible Integration
 
-## 🔍 Interacting with the Environment
+- **Terraform**:
+  - Provisions the VM and network using the `libvirt` provider.
+  - Outputs the VM IP address for Ansible.
+- **Ansible**:
+  - The `site.yml` playbook:
+    - Runs `terraform init` and `terraform apply` locally.
+    - Extracts the VM IP and generates a dynamic inventory.
+    - Applies roles (`common_config`, `docker_setup`, `app_deployment`) to configure the VM.
+- **Flow**:
+  - `site.yml` executes Terraform first (`local-exec`), then Ansible (`remote-exec` via SSH).
+  - Dynamic inventory ensures Ansible targets the newly provisioned VM.
 
-- **Frontend**:
-  - Navigate to `http://localhost:3000` to access the storefront or admin dashboard.
-  - Use the UI to browse products or manage inventory.
+## 📁 Structure Overview
 
-- **Backend API**:
-  - Base URL: `http://localhost:5000/api/product`
-  - Example endpoints:
-    - `GET /`: List all products
-    - `POST /`: Add a product (requires JSON payload)
-    - `PUT /:id`: Update a product
-    - `DELETE /:id`: Delete a product
-  - master with tools like `curl` or Postman:
-    ```bash
-    curl http://localhost:5000/api/product
-    ```
-
-- **MongoDB**:
-  - Connect to the Dockerized MongoDB at `localhost:27017` using a MongoDB client (e.g., MongoDB Compass).
-  - The database is named `yolomy` (based on backend configuration).
+- **`terraform/`**: Contains Terraform configurations (`main.tf`, `variables.tf`, `cloud_init.cfg`) for VM and network provisioning.
+- **`ansible/`**:
+  - `playbooks/site.yml`: Orchestrates Terraform and Ansible.
+  - `roles/`: Modular roles for system setup, Docker, and app deployment.
+  - `inventory/`: Dynamic hosts file generated from Terraform output.
+  - `ansible.cfg`: Ansible configuration.
+- **`vars.yml`**: Global variables (e.g., `project_dir`, `repo_url`).
+- **`docker-compose.yaml`**: Defines microservices.
 
 ## 🧼 Troubleshooting
 
-- **Port Conflicts**:
-  - If ports 3000, 5000, or 27017 are in use, stop conflicting processes:
+- **Terraform Errors**:
+  - Ensure the Ubuntu QCOW2 image exists:
     ```bash
-    sudo lsof -i :3000
-    sudo kill -9 <PID>
+    ls /var/lib/libvirt/images/ubuntu-22.04-minimal.qcow2
     ```
-  - Alternatively, modify the `Vagrantfile` to use different host ports.
-
-- **Docker Compose Errors**:
-  - If `docker-compose up` fails, check the logs:
+  - Check libvirt permissions:
     ```bash
-    vagrant ssh
-    cd /home/vagrant/yolo
+    sudo usermod -aG libvirt $USER
+    ```
+
+- **Ansible Connection Issues**:
+  - Verify SSH access:
+    ```bash
+    ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
+    ```
+  - Ensure the SSH key is correct in `vars.yml`.
+
+- **Docker Compose Failures**:
+  - Check logs:
+    ```bash
+    ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
+    cd /home/ubuntu/yolo
     docker-compose logs
     ```
-  - Ensure the `client` and `backend` directories contain valid `Dockerfile`s.
+  - Ensure `client` and `backend` directories have valid `Dockerfile`s.
 
-- **MongoDB Conflicts**:
-  - The `mongodb_setup` role installs a native MongoDB instance, which may conflict with the Dockerized `app-mongo`. To use only the Dockerized MongoDB, edit `playbook.yaml` to skip the `mongodb_setup` role:
-    ```yaml
-    roles:
-      - common_config
-      - docker_setup
-      - app_deployment
-    ```
-  - Re-provision the VM:
+- **Port Access**:
+  - If `<vm_ip>:3000` is inaccessible, check VM firewall:
     ```bash
-    vagrant provision
+    ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
+    sudo ufw allow 3000
     ```
-
-- **Repository Clone Issues**:
-  - If the `master` branch clone fails, verify its existence:
-    ```bash
-    git ls-remote https://github.com/mulikevs/yolo.git master
-    ```
-  - For private repositories, add an SSH key to the VM or use credentials in `vars.yml`.

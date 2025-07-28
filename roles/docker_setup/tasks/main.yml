@@ -16,6 +16,13 @@
     state: present
     update_cache: yes
 
+#sudo apt-get install docker-compose-plugin
+- name: Install Docker Compose
+  apt:
+    name: docker-compose-plugin
+    state: present
+    update_cache: yes
+
 - name: Start Docker service
   systemd:
     name: docker

@@ -2,6 +2,7 @@ app-mongo-data
 app-mongo-data/
 vault.yml
 .vagrant/
+.terraform/
 .vscode/
 .vscode
 .vscode/*

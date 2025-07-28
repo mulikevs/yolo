@@ -20,7 +20,7 @@ This document explains the hybrid automation stack for Stage 2 of the YOLO E-Com
 ## 🔄 Orchestration Flow
 
 1. **Initiate with `site.yml`**:
-   - Run `ansible-playbook playbooks/site.yml` from `Stage_two/ansible`.
+   - Run `ansible-playbook playbooks/site.yml` from `stage_two/ansible`.
    - The playbook has two plays:
      - **Local Play**: Runs Terraform on the host machine.
      - **Remote Play**: Configures the VM via SSH.

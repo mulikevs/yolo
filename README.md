@@ -37,17 +37,17 @@ This setup demonstrates:
 
 ## 🛠️ Installation
 
-1. **Clone the Repository and Switch to Stage_two Branch**:
+1. **Clone the Repository and Switch to stage_two Branch**:
    ```bash
    git clone https://github.com/mulikevs/yolo.git
    cd yolo
-   git checkout Stage_two
-   cd Stage_two
+   git checkout stage_two
+   cd stage_two
    ```
 
 2. **Verify Directory Structure**:
    ```
-   Stage_two/
+   stage_two/
    ├── terraform/
    │   ├── main.tf
    │   ├── variables.tf
@@ -85,7 +85,7 @@ This setup demonstrates:
 1. **Run the Full Stack**:
    Execute the `site.yml` playbook to provision infrastructure and configure the VM:
    ```bash
-   cd Stage_two/ansible
+   cd stage_two/ansible
    ansible-playbook playbooks/site.yml
    ```
    - **What Happens**:
@@ -118,7 +118,7 @@ This setup demonstrates:
 
 2. **Destroy Infrastructure**:
    ```bash
-   cd Stage_two/terraform
+   cd stage_two/terraform
    terraform destroy -auto-approve
    ```
 

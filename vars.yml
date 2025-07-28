@@ -1,0 +1,13 @@
+# Global variables for the e-commerce application deployment
+project_dir: /home/vagrant/yolo
+docker_compose_file: "{{ project_dir }}/docker-compose.yaml"
+frontend_image: mulikevs/mulikevs-yolo-client:v1.0.0
+backend_image: mulikevs/mulikevs-yolo-backend:v1.0.0
+mongodb_image: mongo:7.0.12
+frontend_port: 3000
+backend_port: 5000
+mongodb_port: 27017
+repo_url: https://github.com/mulikevs/yolo.git
+backend_dir: "{{ project_dir }}/backend"
+frontend_dir: "{{ project_dir }}/client"
+mongodb_version: 7.0

@@ -1,0 +1,59 @@
+---
+# Tasks to deploy the application
+- name: Check if repository exists
+  stat:
+    path: "{{ project_dir }}/.git"
+  register: repo_exists
+
+- name: Remove project directory if not a Git repository
+  file:
+    path: "{{ project_dir }}"
+    state: absent
+  when: not repo_exists.stat.exists
+
+- name: Clone YOLO repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ project_dir }}"
+    single_branch: yes
+    version: master
+    update: yes
+  when: not repo_exists.stat.exists
+
+- name: Update YOLO repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ project_dir }}"
+    single_branch: yes
+    version: master
+    update: yes
+  when: repo_exists.stat.exists
+
+- name: Copy Docker Compose file
+  copy:
+    src: docker-compose.yaml
+    dest: "{{ docker_compose_file }}"
+    owner: vagrant
+    group: vagrant
+    mode: '0644'
+
+- name: Ensure backend directory exists
+  file:
+    path: "{{ backend_dir }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Ensure client directory exists
+  file:
+    path: "{{ frontend_dir }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Run Docker Compose
+  command: docker compose -f /home/vagrant/yolo/docker-compose.yaml up build
+  tags:
+    - deploy

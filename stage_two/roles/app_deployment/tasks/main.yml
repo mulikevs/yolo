@@ -33,24 +33,24 @@
   copy:
     src: docker-compose.yaml
     dest: "{{ docker_compose_file }}"
-    owner: vagrant
-    group: vagrant
+    owner: terraform
+    group: terraform
     mode: '0644'
 
 - name: Ensure backend directory exists
   file:
     path: "{{ backend_dir }}"
     state: directory
-    owner: vagrant
-    group: vagrant
+    owner: terraform
+    group: terraform
     mode: '0755'
 
 - name: Ensure client directory exists
   file:
     path: "{{ frontend_dir }}"
     state: directory
-    owner: vagrant
-    group: vagrant
+    owner: terraform
+    group: terraform
     mode: '0755'
 
 - name: Run Docker Compose

@@ -1,5 +1,5 @@
 # Global variables for the e-commerce application deployment
-project_dir: /home/vagrant/yolo
+project_dir: /home/terraform/yolo
 docker_compose_file: "{{ project_dir }}/docker-compose.yaml"
 frontend_image: mulikevs/mulikevs-yolo-client:v1.0.0
 backend_image: mulikevs/mulikevs-yolo-backend:v1.0.0

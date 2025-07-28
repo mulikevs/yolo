@@ -10,8 +10,8 @@
       file:
         path: "{{ project_dir }}"
         state: directory
-        owner: vagrant
-        group: vagrant
+        owner: terraform
+        group: terraform
         mode: '0755'
 
   roles:

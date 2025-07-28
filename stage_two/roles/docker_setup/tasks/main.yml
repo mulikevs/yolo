@@ -33,8 +33,8 @@
   command: docker --version
 
 
-- name: Ensure vagrant user is in docker group
+- name: Ensure terraform user is in docker group
   user:
-    name: vagrant
+    name: terraform
     groups: docker
     append: yes

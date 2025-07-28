@@ -27,7 +27,6 @@ The `Vagrantfile` defines the VM configuration and triggers Ansible provisioning
     ```ruby
     config.vm.network "forwarded_port", guest: 3000, host: 3000
     config.vm.network "forwarded_port", guest: 5000, host: 5000
-    config.vm.network "forwarded_port", guest: 27017, host: 27017
     ```
     - Maps VM ports (3000, 5000, 27017) to host ports, enabling access to the frontend, backend, and MongoDB.
 - **Ansible Provisioner**:
@@ -71,7 +70,6 @@ The `playbook.yaml` orchestrates the provisioning process using Ansible roles.
   - Applies four roles in order:
     - `common_config`: Installs system dependencies (e.g., `curl`, `python3-pip`).
     - `docker_setup`: Installs Docker and Docker Compose V2.
-    - `mongodb_setup`: Installs a native MongoDB instance (optional, may conflict with Dockerized MongoDB).
     - `app_deployment`: Clones the repository, copies `docker-compose.yaml`, and starts the application.
 
 ### Key Roles
@@ -82,11 +80,7 @@ The `playbook.yaml` orchestrates the provisioning process using Ansible roles.
    - Installs Docker from the official repository.
    - Downloads Docker Compose V2 binary (`v2.24.0`).
    - Adds the `vagrant` user to the `docker` group.
-3. **mongodb_setup**:
-   - Installs MongoDB (version 7.0) natively.
-   - Configures remote connections and authentication.
-   - **Note**: May conflict with the Dockerized MongoDB in `docker-compose.yaml`.
-4. **app_deployment**:
+3. **app_deployment**:
    - Clones the `master` branch of `https://github.com/mulikevs/yolo.git` to `/home/vagrant/yolo`.
    - Copies `docker-compose.yaml` to the project directory.
    - Creates `backend` and `client` directories.

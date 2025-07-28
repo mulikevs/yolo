@@ -20,6 +20,6 @@
     # Install Docker and Docker Compose
     - docker_setup
     # Install and configure MongoDB
-    - mongodb_setup
+    # - mongodb_setup
     # Deploy the application
     - app_deployment

@@ -1,6 +1,0 @@
----
-# Handlers for MongoDB service
-- name: Restart MongoDB Service
-  service:
-    name: mongod
-    state: restarted

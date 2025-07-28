@@ -57,7 +57,6 @@ Ensure your system has at least:
    ├── roles/
    │   ├── common_config/
    │   ├── docker_setup/
-   │   ├── mongodb_setup/
    │   ├── app_deployment/
    └── README.md
    ```

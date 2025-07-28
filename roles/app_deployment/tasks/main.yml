@@ -54,6 +54,8 @@
     mode: '0755'
 
 - name: Run Docker Compose
-  command: docker compose -f /home/vagrant/yolo/docker-compose.yaml up build
+  command: docker compose -f "{{ docker_compose_file }}" up -d
+  args:
+    chdir: "{{ project_dir }}"
   tags:
     - deploy

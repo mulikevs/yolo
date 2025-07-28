@@ -1,5 +1,5 @@
 # Docker Compose file to run the e-commerce application
-version: "3.7"
+# version: "3.7"
 
 services:
   # Frontend microservice

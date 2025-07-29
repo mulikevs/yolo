@@ -29,11 +29,6 @@ This setup demonstrates:
   - 4GB RAM, 10GB disk space
   - Ubuntu host (or compatible Linux with libvirt)
   - SSH key pair (`~/.ssh/id_rsa`, `~/.ssh/id_rsa.pub`)
-- **Ubuntu Image**:
-  - Download Ubuntu 22.04 QCOW2 image and place it at `/var/lib/libvirt/images/ubuntu-22.04-minimal.qcow2`:
-    ```bash
-    sudo wget -O /var/lib/libvirt/images/ubuntu-22.04-minimal.qcow2 https://cloud-images.ubuntu.com/minimal/releases/jammy/release/ubuntu-22.04-minimal-cloudimg-amd64.img
-    ```
 
 ## 🛠️ Installation
 
@@ -48,45 +43,30 @@ This setup demonstrates:
 2. **Verify Directory Structure**:
    ```
    stage_two/
-   ├── terraform/
-   │   ├── main.tf
-   │   ├── variables.tf
-   │   ├── cloud_init.cfg
-   ├── ansible/
-   │   ├── playbooks/
-   │   │   ├── site.yml
-   │   │   ├── inventory.j2
-   │   ├── roles/
-   │   │   ├── common_config/
-   │   │   ├── docker_setup/
-   │   │   ├── app_deployment/
-   │   ├── inventory/
-   │   │   ├── hosts
-   │   ├── ansible.cfg
+   ├── roles/
+   │   ├── app_deployment/
+   │   ├── common_config/
+   │   ├── docker_setup/
    ├── vars.yml
-   ├── docker-compose.yaml
-   ├── README.md
-   └── explanation.md
+   ├── ansible.cfg
+   ├── inventory.ini
+   ├── playbook.yaml
+   └── main.tf
    ```
 
 3. **Install Dependencies**:
-   - Ensure Terraform, Ansible, and libvirt are installed:
+   - Ensure Terraform and Ansible:
      ```bash
      sudo apt update
-     sudo apt install -y terraform qemu-kvm libvirt-daemon-system libvirt-clients
+     sudo apt install -y terraform
      ```
-   - Verify libvirt service:
-     ```bash
-     sudo systemctl enable --now libvirtd
-     ```
-
 ## 🚀 Deploying the Application
 
 1. **Run the Full Stack**:
-   Execute the `site.yml` playbook to provision infrastructure and configure the VM:
+   Execute the `playbook.yaml` playbook to provision infrastructure and configure the VM:
    ```bash
-   cd stage_two/ansible
-   ansible-playbook playbooks/site.yml
+   cd stage_two/
+   ansible-playbook playbook.yaml
    ```
    - **What Happens**:
      - Terraform provisions an Ubuntu 22.04 VM with port forwarding (3000, 5000, 27017).
@@ -97,7 +77,6 @@ This setup demonstrates:
    - **Frontend**: `http://<vm_ip>:3000` (React storefront/admin dashboard)
    - **Backend API**: `http://<vm_ip>:5000/api/product` (REST API)
    - **MongoDB**: `<vm_ip>:27017` (optional, for database access)
-   - Find `<vm_ip>` in `terraform/terraform.tfstate` or `ansible/inventory/hosts`.
 
 3. **Verify Containers**:
    SSH into the VM to check Docker containers:
@@ -113,7 +92,7 @@ This setup demonstrates:
    ```bash
    ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
    cd /home/ubuntu/yolo
-   docker-compose -f docker-compose.yaml down
+   docker compose down
    ```
 
 2. **Destroy Infrastructure**:
@@ -125,26 +104,22 @@ This setup demonstrates:
 ## 🔧 Terraform and Ansible Integration
 
 - **Terraform**:
-  - Provisions the VM and network using the `libvirt` provider.
   - Outputs the VM IP address for Ansible.
 - **Ansible**:
-  - The `site.yml` playbook:
-    - Runs `terraform init` and `terraform apply` locally.
+  - The `playbook.yaml` playbook:
     - Extracts the VM IP and generates a dynamic inventory.
     - Applies roles (`common_config`, `docker_setup`, `app_deployment`) to configure the VM.
 - **Flow**:
-  - `site.yml` executes Terraform first (`local-exec`), then Ansible (`remote-exec` via SSH).
+  - `playbook.yaml` executes Terraform first (`local-exec`), then Ansible (`remote-exec` via SSH).
   - Dynamic inventory ensures Ansible targets the newly provisioned VM.
 
 ## 📁 Structure Overview
 
-- **`terraform/`**: Contains Terraform configurations (`main.tf`, `variables.tf`, `cloud_init.cfg`) for VM and network provisioning.
-- **`ansible/`**:
-  - `playbooks/site.yml`: Orchestrates Terraform and Ansible.
+- **`main.tf`**: Contains Terraform configurations.
+  - `playbook.yaml`: Orchestrates Terraform and Ansible.
   - `roles/`: Modular roles for system setup, Docker, and app deployment.
-  - `inventory/`: Dynamic hosts file generated from Terraform output.
   - `ansible.cfg`: Ansible configuration.
-- **`vars.yml`**: Global variables (e.g., `project_dir`, `repo_url`).
+- **`vars.yml`**: Global variables.
 - **`docker-compose.yaml`**: Defines microservices.
 
 ## 🧼 Troubleshooting
@@ -171,7 +146,7 @@ This setup demonstrates:
     ```bash
     ssh -i ~/.ssh/id_rsa ubuntu@<vm_ip>
     cd /home/ubuntu/yolo
-    docker-compose logs
+    docker compose logs
     ```
   - Ensure `client` and `backend` directories have valid `Dockerfile`s.
 

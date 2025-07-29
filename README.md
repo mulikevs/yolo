@@ -92,7 +92,7 @@ Ensure your system has at least:
    ```bash
    vagrant ssh
    cd /home/vagrant/yolo
-   docker-compose -f docker-compose.yaml down
+   docker compose down
    ```
 
 2. **Halt the VM**:
@@ -140,11 +140,11 @@ Ensure your system has at least:
   - Alternatively, modify the `Vagrantfile` to use different host ports.
 
 - **Docker Compose Errors**:
-  - If `docker-compose up` fails, check the logs:
+  - If `docker compose up` fails, check the logs:
     ```bash
     vagrant ssh
     cd /home/vagrant/yolo
-    docker-compose logs
+    docker compose logs
     ```
   - Ensure the `client` and `backend` directories contain valid `Dockerfile`s.
 

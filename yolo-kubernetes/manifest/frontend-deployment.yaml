@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolo-client
+  namespace: yolo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: yolo-client
+  template:
+    metadata:
+      labels:
+        app: yolo-client
+    spec:
+      containers:
+      - name: yolo-client
+        image: mulikevs/mulikevs-yolo-client:v1.0.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_API_URL
+          value: "http://yolo-backend:5000/api"

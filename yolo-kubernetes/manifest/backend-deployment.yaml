@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: yolo-backend
-        image: mulikevs/mulikevs-yolo-backend:v1.0.0
+        image: mulikevs/mulikevs-yolo-backend:v1.0.1
         ports:
         - containerPort: 5000
         env:

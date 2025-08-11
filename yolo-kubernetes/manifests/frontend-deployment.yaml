@@ -18,6 +18,3 @@ spec:
         image: mulikevs/mulikevs-yolo-client:v1.0.0
         ports:
         - containerPort: 3000
-        env:
-        - name: REACT_APP_API_URL
-          value: "http://yolo-backend:5000/api"

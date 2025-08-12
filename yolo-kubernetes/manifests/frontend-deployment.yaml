@@ -17,4 +17,12 @@ spec:
       - name: yolo-client
         image: mulikevs/mulikevs-yolo-client:v1.0.1
         ports:
-        - containerPort: 3000
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3

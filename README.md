@@ -18,7 +18,7 @@ This document focuses on the local Vagrant-based setup. For GKE deployment, refe
 
 | Layer      | Technology                       | Port  |
 |------------|----------------------------------|-------|
-| Frontend   | React (`mulikevs/mulikevs-yolo-client:v1.0.2`) | 3000  |
+| Frontend   | React (`mulikevs/mulikevs-yolo-client:v1.0.3`) | 3000  |
 | Backend    | Node.js + Express (`mulikevs/mulikevs-yolo-backend:v1.0.1`) | 5000  |
 | Database   | MongoDB (`mongo:7.0.12`)         | 27017 |
 | DevOps     | Vagrant, Ansible, Docker Compose | -     |

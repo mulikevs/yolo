@@ -7,7 +7,7 @@ The YOLO E-Commerce Application is deployed on Google Kubernetes Engine (GKE) us
 - **Namespace**: `yolo-app`
 - **Components**:
   - **Frontend**:
-    - Deployment: `yolo-client` (1 replica, `mulikevs/mulikevs-yolo-client:v1.0.1`)
+    - Deployment: `yolo-client` (1 replica, `mulikevs/mulikevs-yolo-client:v1.0.3`)
     - Image: Uses nginx to serve static React files, proxies `/api/` to the backend
     - Port: 80
     - Service: `yolo-client` (LoadBalancer, external IP: `34.28.28.204`, port 80)

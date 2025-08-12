@@ -9,7 +9,7 @@ const productRoute = require('./routes/api/productRoute');
 
 let mongodb_url = 'mongodb://localhost:27017/';
 let dbName = 'yolomy';
-const MONGODB_URI = process.env.MONGODB_URI || mongodb_url + dbName
+const MONGODB_URI = process.env.MONGO_URI || mongodb_url + dbName
 mongoose.connect(MONGODB_URI,{useNewUrlParser: true, useUnifiedTopology: true  } )
 let db = mongoose.connection;
 

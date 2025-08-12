@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: yolo-client
-        image: mulikevs/mulikevs-yolo-client:v1.0.0
+        image: mulikevs/mulikevs-yolo-client:v1.0.1
         ports:
         - containerPort: 3000

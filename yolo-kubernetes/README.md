@@ -6,7 +6,7 @@ This document guides you through deploying the YOLO E-Commerce Application on Go
 
 - **Namespace**: `yolo-app`
 - **Components**:
-  - **Frontend**: `mulikevs/mulikevs-yolo-client:v1.0.1` (1 replica, port 80, served by nginx)
+  - **Frontend**: `mulikevs/mulikevs-yolo-client:v1.0.2` (1 replica, port 80, served by nginx)
   - **Backend**: `mulikevs/mulikevs-yolo-backend:v1.0.1` (1 replica, port 5000)
   - **Database**: `mongo:7.0.12` (StatefulSet, port 27017, persistent storage)
 - **Exposure**:
